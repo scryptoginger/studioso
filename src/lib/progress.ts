@@ -1,14 +1,34 @@
 import type { CardProgress } from "./types";
 
+const KEY_PREFIX = "studioso:progress:";
+
+function key(deckSlug: string): string {
+  return `${KEY_PREFIX}${deckSlug}`;
+}
+
 export function loadProgress(
-  _deckSlug: string,
+  deckSlug: string,
 ): Record<string, CardProgress> {
-  return {};
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(key(deckSlug));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    return parsed as Record<string, CardProgress>;
+  } catch {
+    return {};
+  }
 }
 
 export function saveProgress(
-  _deckSlug: string,
-  _progress: Record<string, CardProgress>,
+  deckSlug: string,
+  progress: Record<string, CardProgress>,
 ): void {
-  // localStorage persistence added in a follow-up phase.
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key(deckSlug), JSON.stringify(progress));
+  } catch {
+    // Quota exceeded, private browsing, etc — silently drop.
+  }
 }
