@@ -65,13 +65,14 @@ export default function StudySession({ deck }: Props) {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-4 pb-6 pt-4 sm:px-6">
+    <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6">
       <TopBar
         title={deck.title}
         index={index}
         total={order.length}
         finished={finished}
       />
+      <ProgressBar value={finished ? order.length : index} total={order.length} />
       <div className="mt-4 flex flex-1 flex-col">
         {finished ? (
           <SessionSummary
@@ -87,7 +88,7 @@ export default function StudySession({ deck }: Props) {
             onMark={markConfidence}
           />
         ) : (
-          <div className="flex flex-1 items-center justify-center text-slate-500">
+          <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
             Loading…
           </div>
         )}
@@ -109,11 +110,11 @@ function TopBar({
 }) {
   const counterIndex = finished ? total : Math.min(index + 1, total);
   return (
-    <header className="flex items-center gap-3">
+    <header className="flex items-center gap-2">
       <Link
         href="/"
-        aria-label="Back to decks"
-        className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 active:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800"
+        aria-label="All decks"
+        className="-ml-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 active:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800"
       >
         <svg
           width="20"
@@ -121,20 +122,33 @@ function TopBar({
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
+          aria-hidden="true"
         >
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </Link>
-      <h1 className="flex-1 truncate text-lg font-medium tracking-tight">
+      <h1 className="flex-1 truncate text-base font-semibold tracking-tight">
         {title}
       </h1>
-      <span className="text-sm tabular-nums text-slate-500 dark:text-slate-400">
+      <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold tabular-nums text-slate-500 dark:bg-slate-800 dark:text-slate-400">
         {counterIndex} / {total}
       </span>
     </header>
+  );
+}
+
+function ProgressBar({ value, total }: { value: number; total: number }) {
+  const pct = total > 0 ? Math.min(100, (value / total) * 100) : 0;
+  return (
+    <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+      <div
+        className="h-full rounded-full bg-indigo-500 transition-[width] duration-300 ease-out"
+        style={{ width: `${pct}%` }}
+      />
+    </div>
   );
 }
 
@@ -151,31 +165,46 @@ function CardView({
 }) {
   return (
     <>
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={flipped ? "Answer — tap to hide" : "Question — tap to reveal answer"}
         onClick={onFlip}
-        className="flex flex-1 select-text flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-sm transition active:scale-[0.995] dark:border-slate-800 dark:bg-slate-900 sm:p-8"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onFlip();
+          }
+        }}
+        className="flex flex-1 cursor-pointer flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-transform active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 sm:p-8"
       >
-        {flipped ? (
-          <>
-            <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              <Markdown>{card.front}</Markdown>
+        <div
+          key={`${card.id}:${flipped ? "b" : "f"}`}
+          className="animate-card-in flex flex-1 flex-col"
+        >
+          {flipped ? (
+            <>
+              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                <Markdown>{card.front}</Markdown>
+              </div>
+              <div className="my-4 h-px bg-slate-200 dark:bg-slate-800" />
+              <div className="flex-1 overflow-y-auto text-[15px] leading-relaxed">
+                <Markdown>{card.back}</Markdown>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 items-center justify-center">
+              <div className="text-center text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
+                <Markdown>{card.front}</Markdown>
+              </div>
             </div>
-            <div className="h-px bg-slate-200 dark:bg-slate-800" />
-            <div className="flex-1 text-base leading-7">
-              <Markdown>{card.back}</Markdown>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-1 items-center justify-center text-center text-2xl font-medium leading-snug sm:text-3xl">
-            <Markdown>{card.front}</Markdown>
-          </div>
-        )}
-      </button>
+          )}
+        </div>
+      </div>
 
-      <div className="mt-4">
+      <div className="mt-4 min-h-[3.5rem]">
         {flipped ? (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-2.5">
             <ConfidenceButton
               label="Don't know"
               tone="red"
@@ -183,7 +212,7 @@ function CardView({
             />
             <ConfidenceButton
               label="Learning"
-              tone="yellow"
+              tone="amber"
               onClick={() => onMark("learning")}
             />
             <ConfidenceButton
@@ -193,8 +222,8 @@ function CardView({
             />
           </div>
         ) : (
-          <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-            Tap card to reveal
+          <p className="py-3.5 text-center text-sm font-medium text-slate-400 dark:text-slate-500">
+            Tap the card to reveal the answer
           </p>
         )}
       </div>
@@ -202,9 +231,9 @@ function CardView({
   );
 }
 
-const TONE_CLASSES: Record<"red" | "yellow" | "green", string> = {
-  red: "bg-red-500 text-white hover:bg-red-600 active:bg-red-700",
-  yellow: "bg-amber-400 text-slate-900 hover:bg-amber-500 active:bg-amber-600",
+const TONE_CLASSES: Record<"red" | "amber" | "green", string> = {
+  red: "bg-rose-500 text-white hover:bg-rose-600 active:bg-rose-700",
+  amber: "bg-amber-400 text-amber-950 hover:bg-amber-500 active:bg-amber-600",
   green: "bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700",
 };
 
@@ -214,14 +243,14 @@ function ConfidenceButton({
   onClick,
 }: {
   label: string;
-  tone: "red" | "yellow" | "green";
+  tone: "red" | "amber" | "green";
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-2xl px-3 py-3 text-sm font-medium shadow-sm transition active:scale-[0.98] ${TONE_CLASSES[tone]}`}
+      className={`rounded-xl px-2 py-3.5 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${TONE_CLASSES[tone]}`}
     >
       {label}
     </button>
@@ -247,27 +276,57 @@ function SessionSummary({
     if (p) tiers[p.confidence] += 1;
   }
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-      <h2 className="text-2xl font-semibold tracking-tight">Session complete</h2>
-      <ul className="grid w-full max-w-xs grid-cols-1 gap-2 text-left">
+    <div className="flex flex-1 flex-col items-center justify-center gap-7 py-8 text-center">
+      <div className="flex flex-col items-center gap-2">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        </span>
+        <h2 className="text-2xl font-bold tracking-tight">Session complete</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          You reviewed {cards.length} card{cards.length === 1 ? "" : "s"}.
+        </p>
+      </div>
+
+      <ul className="grid w-full max-w-xs gap-2">
         <SummaryRow label="Know it" count={tiers.known} tone="green" />
-        <SummaryRow label="Learning" count={tiers.learning} tone="yellow" />
+        <SummaryRow label="Learning" count={tiers.learning} tone="amber" />
         <SummaryRow label="Don't know" count={tiers.unknown} tone="red" />
       </ul>
-      <button
-        type="button"
-        onClick={onRestart}
-        className="rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white shadow-sm transition active:scale-[0.98] dark:bg-slate-100 dark:text-slate-900"
-      >
-        Study again
-      </button>
+
+      <div className="flex w-full max-w-xs flex-col gap-2.5">
+        <button
+          type="button"
+          onClick={onRestart}
+          className="rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 active:scale-[0.98]"
+        >
+          Study again
+        </button>
+        <Link
+          href="/"
+          className="rounded-xl px-6 py-3 text-sm font-medium text-slate-500 transition hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+        >
+          Back to all decks
+        </Link>
+      </div>
     </div>
   );
 }
 
-const DOT_TONES: Record<"red" | "yellow" | "green", string> = {
-  red: "bg-red-500",
-  yellow: "bg-amber-400",
+const DOT_TONES: Record<"red" | "amber" | "green", string> = {
+  red: "bg-rose-500",
+  amber: "bg-amber-400",
   green: "bg-emerald-500",
 };
 
@@ -278,15 +337,15 @@ function SummaryRow({
 }: {
   label: string;
   count: number;
-  tone: "red" | "yellow" | "green";
+  tone: "red" | "amber" | "green";
 }) {
   return (
-    <li className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-      <span className="flex items-center gap-3 text-sm">
+    <li className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+      <span className="flex items-center gap-2.5 text-sm font-medium">
         <span className={`h-2.5 w-2.5 rounded-full ${DOT_TONES[tone]}`} />
         {label}
       </span>
-      <span className="text-base font-medium tabular-nums">{count}</span>
+      <span className="text-base font-bold tabular-nums">{count}</span>
     </li>
   );
 }
