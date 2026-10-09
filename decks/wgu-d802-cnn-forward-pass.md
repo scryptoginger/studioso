@@ -32,6 +32,24 @@ A flat gray patch (all 0.5) gives 0 + (−0.5) = −0.5, so ReLU outputs 0: "not
 
 ---
 
+## What are the numbers a Conv1 filter multiplies, and how do they differ from what Conv2 multiplies?
+
+Conv1 multiplies normalized pixel values: each pixel's 0–255 color value divided by 255, one number per color channel (so 0.1 ≈ dark, 0.9 ≈ bright). From Conv2 onward, the inputs aren't pixels anymore; they're the scores the previous layer's filters wrote on their answer sheets.
+
+---
+
+## Where do a filter's weights come from?
+
+They start as random numbers and are learned during training: backpropagation nudges them, batch after batch, toward whatever patterns help lower the loss. Hand-picked weights like −1 / 0 / +1 are only for illustration.
+
+---
+
+## What other names refer to a "dense" layer?
+
+Fully connected (FC) layer, Linear (PyTorch's `nn.Linear`), Dense (Keras), and affine layer. All mean the same thing: every neuron connects to every input. A network built mostly from these layers is called a multilayer perceptron (MLP).
+
+---
+
 ## How does a filter differ from a channel?
 
 A filter is a detector, a question like "is there a horizontal edge here?" A channel is that filter's answer sheet: a grid holding one score per position. One filter produces exactly one output channel, so a layer's filter count equals its output channel count.
