@@ -185,6 +185,6 @@ Halting training once validation loss stops improving and starts to climb, and k
 
 ## How does a simpler architecture fight overfitting?
 
-Fewer layers or neurons means less capacity, so the network literally can't memorize the whole training set and is pushed toward general patterns.
+Fewer layers or neurons means less capacity, so the network has less room to memorize the training set and is pushed toward general patterns.
 
 ---
