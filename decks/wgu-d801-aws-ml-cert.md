@@ -104,7 +104,7 @@ A **real-time endpoint**: a persistent, fully managed endpoint built for interac
 
 ## A SageMaker AI endpoint in private subnets with no internet access must read model artifacts from S3. What is needed?
 
-Set the model's **VPC config** (subnets and security groups), and create an **S3 VPC endpoint** so the containers can reach S3 without the internet. Trap: adding an internet gateway or NAT, which breaks the "no internet" requirement; AWS documents NAT only for services without VPC endpoint support.
+Set the model's **VPC config** (subnets and security groups), and create an **S3 VPC endpoint** so the containers can reach S3 without the internet. Trap: adding an internet gateway or NAT, which breaks the "no internet" requirement; AWS documents NAT only for services without interface VPC endpoints or for resources outside AWS.
 
 ---
 
@@ -116,7 +116,7 @@ Set the model's **VPC config** (subnets and security groups), and create an **S3
 
 ## How does SageMaker Model Monitor detect data drift in production?
 
-You create a **baseline** of statistics and constraints from the training dataset, then a **monitoring schedule** compares captured live data against it. Values outside the constraints are reported as violations, with metrics and notifications in CloudWatch.
+You create a **baseline** of statistics and constraints from the training dataset, then a **monitoring schedule** compares captured live data against it. Values outside the constraints are reported as violations, with metrics and notifications in CloudWatch. Note: Model Monitor is no longer open to new AWS customers; existing customers can keep using it.
 
 ---
 
