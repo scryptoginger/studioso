@@ -9,9 +9,9 @@ Splitting raw text into units (**tokens**) that a model can count or look up: wo
 ## How does word-level tokenization differ from subword tokenization on informal text like tweets?
 
 - **Word-level:** each whitespace- or rule-delimited word is a token. Misspellings and slang ("sooo", "gr8") become rare or unknown words.
-- **Subword (BPE, WordPiece):** rare words are broken into frequent pieces (for example, "unhappiness" might split into pieces like "un" + "happi" + "ness"; the exact split depends on the learned vocabulary). Unseen words still get a representation.
+- **Subword (BPE, WordPiece):** rare words are broken into frequent pieces (for example, DistilBERT's uncased WordPiece tokenizer splits "unhappiness" into `un`, `##ha`, `##pp`, `##iness`; the exact split depends on the learned vocabulary). Unseen words still get a representation.
 
-Subword tokenization is why transformers cope with noisy social-media text.
+Subword tokenization is one reason transformers cope better with noisy social-media text.
 
 ---
 
@@ -144,7 +144,7 @@ Fit on training text only, then `transform` validation and test. Wrapping the ve
 
 ## How much traditional cleaning should text get before it goes into a pretrained transformer?
 
-Very little. Pass near-raw text to the **model's own tokenizer**. These models were pretrained on natural text with casing, punctuation and stopwords. Stripping them removes context the model knows how to use, such as "not" and "!".
+Very little. Pass near-raw text to the **model's own tokenizer**. These models were pretrained on natural text with punctuation and stopwords left in (uncased models lowercase inside their own tokenizer). Stripping them removes context the model knows how to use, such as "not" and "!".
 
 Still do the basic hygiene: drop empty rows, deduplicate, and replace URLs and @mentions with placeholders.
 
