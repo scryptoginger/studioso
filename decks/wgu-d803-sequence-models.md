@@ -67,7 +67,7 @@ It needs the whole sequence up front, so it suits classification, not live gener
 
 ## What problem does attention solve in sequence models?
 
-Instead of squeezing a whole sentence into one final hidden state, attention lets the model **look back at every token** and take a **weighted average**. The weights are learned per query and show how relevant each token is. Long-range information no longer has to survive many recurrent steps.
+Instead of squeezing a whole sentence into one final hidden state, attention lets the model **look back at every token** and take a **weighted average**. The weights are computed fresh for each query from learned parameters, and show how relevant each token is. Long-range information no longer has to survive many recurrent steps.
 
 ---
 
@@ -112,7 +112,7 @@ Load both from the **same checkpoint name** with `AutoTokenizer` and `AutoModelâ
 
 ## What does the attention_mask returned by a Hugging Face tokenizer do?
 
-When a batch is padded to equal length, the mask marks **real tokens with 1 and padding with 0**, so attention ignores the pad positions. The tokenizer creates it alongside `input_ids` when you pass `padding=True`. `truncation=True` cuts inputs longer than the model's maximum length.
+When a batch is padded to equal length, the mask marks **real tokens with 1 and padding with 0**, so attention ignores the pad positions. The tokenizer returns it alongside `input_ids` by default; with `padding=True` the padded positions get 0. `truncation=True` cuts inputs longer than the model's maximum length.
 
 ---
 
