@@ -1,4 +1,4 @@
-# D803 Sequence Models
+# 4. D803 Seq Models
 
 ## Why does a bag-of-words representation lose meaning that depends on word order?
 

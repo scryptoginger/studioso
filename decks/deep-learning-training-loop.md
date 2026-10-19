@@ -1,4 +1,4 @@
-# DL: Training Loop
+# 3. DL Training Loop
 
 ## Why do neural networks learn from examples instead of following explicit rules?
 

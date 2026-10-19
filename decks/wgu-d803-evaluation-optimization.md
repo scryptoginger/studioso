@@ -1,4 +1,4 @@
-# D803 Evaluation and Optimization
+# 2. D803 Evaluation
 
 ## When is accuracy a misleading metric for a sentiment classifier?
 

@@ -1,4 +1,4 @@
-# D801 Cert: AWS ML
+# 0. D801 AWS Cert
 
 ## A linear model needs a nominal feature "city" with no natural order. Which encoding fits, and why?
 
